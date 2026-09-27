@@ -2,6 +2,10 @@ class QRadarError(Exception):
     """Raised when QRadar responds with something other than the expected
     JSON payload, e.g. an authentication failure or a bad request."""
 
+    def __init__(self, message, status_code=None):
+        super().__init__(message)
+        self.status_code = status_code
+
 
 class QRadar:
     def __init__(self, base_url, key, version, transport, verify=True):
@@ -37,7 +41,8 @@ class QRadar:
             )
             if response.status_code >= 400:
                 raise QRadarError(
-                    f"{method} {url} failed with HTTP {response.status_code}: {response.text[:500]}"
+                    f"{method} {url} failed with HTTP {response.status_code}: {response.text[:500]}",
+                    status_code=response.status_code,
                 )
             return response.json()
         return call
